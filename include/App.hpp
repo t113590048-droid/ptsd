@@ -2,6 +2,9 @@
 #define APP_HPP
 
 #include "pch.hpp" // IWYU pragma: export
+#include <memory>
+
+class StartMenu; // 這是關鍵的前置宣告
 
 class App {
 public:
@@ -12,11 +15,8 @@ public:
     };
 
     State GetCurrentState() const { return m_CurrentState; }
-
     void Start();
-
     void Update();
-
     void End(); // NOLINT(readability-convert-member-functions-to-static)
 
 private:
@@ -24,6 +24,9 @@ private:
 
 private:
     State m_CurrentState = State::START;
+
+    // 儲存選單的指標
+    std::shared_ptr<StartMenu> m_StartMenu;
 };
 
 #endif
