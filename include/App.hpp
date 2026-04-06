@@ -4,7 +4,8 @@
 #include "pch.hpp" // IWYU pragma: export
 #include <memory>
 
-class StartMenu; // 這是關鍵的前置宣告
+class StartMenu;
+class Gameplay;
 
 class App {
 public:
@@ -24,9 +25,8 @@ private:
 
 private:
     State m_CurrentState = State::START;
-
-    // 儲存選單的指標
     std::shared_ptr<StartMenu> m_StartMenu;
+    std::shared_ptr<Gameplay> m_Gameplay;
 };
 
 #endif

@@ -37,6 +37,8 @@ add_executable(${PROJECT_NAME}
     ${HEADER_FILES}
         include/StartMenu.hpp
         src/StartMenu.cpp
+        include/Gameplay.hpp
+        src/Gameplay.cpp
 )
 
 if(MSVC)
