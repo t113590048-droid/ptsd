@@ -20,6 +20,7 @@ private:
     std::shared_ptr<Util::GameObject> m_NextBubble;      // "NEXT" 下方泡泡框
     std::shared_ptr<Util::GameObject> m_EvolutionLabel; // "Circle of evolution" 文字
     std::shared_ptr<Util::GameObject> m_EvolutionCircle; // 水果進化圈圖
+    std::shared_ptr<Util::GameObject> m_AimLine;
 
     // --- 準備區域 ---
     std::shared_ptr<Util::GameObject> m_Cloud; // 上方的雲 (水果準備區)
