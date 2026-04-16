@@ -32,6 +32,10 @@ StartMenu::StartMenu() {
     m_HowToPlayScreen->m_Transform.translation = {0.0f, 0.0f};
 
     UpdateButtonVisuals();
+
+    // 載入按鈕點擊音效
+    m_BtnClickSound = std::make_shared<Util::SFX>("Resources/material/music/remove.wav");
+    m_BtnClickSound->SetVolume(30); // 可以自己調音量
 }
 void StartMenu::Update() {
     // ==========================================
@@ -41,6 +45,7 @@ void StartMenu::Update() {
         // 按 D 鍵：下一頁
         if (Util::Input::IsKeyUp(Util::Keycode::D)) {
             if (m_HowToPlayPage < 3) {
+                if (m_BtnClickSound) m_BtnClickSound->Play(); 
                 m_HowToPlayPage++;
                 UpdateHowToPlayVisuals();
             }
@@ -48,12 +53,14 @@ void StartMenu::Update() {
         // 按 A 鍵：上一頁
         if (Util::Input::IsKeyUp(Util::Keycode::A)) {
             if (m_HowToPlayPage > 1) {
+                if (m_BtnClickSound) m_BtnClickSound->Play();
                 m_HowToPlayPage--;
                 UpdateHowToPlayVisuals();
             }
         }
         // 按下空白鍵或 ESC 鍵：關閉教學畫面
         if (Util::Input::IsKeyUp(Util::Keycode::SPACE)) {
+            if (m_BtnClickSound) m_BtnClickSound->Play();
             m_IsShowingHowToPlay = false;
         }
     }
@@ -63,6 +70,7 @@ void StartMenu::Update() {
     else {
         // W 鍵：往上
         if (Util::Input::IsKeyUp(Util::Keycode::W)) {
+            if (m_BtnClickSound) m_BtnClickSound->Play();
             if (m_CurrentOption == MenuOption::MY_SCORE) {
                 m_CurrentOption = MenuOption::GAME_START;
             } else if (m_CurrentOption == MenuOption::HOW_TO_PLAY) {
@@ -72,6 +80,7 @@ void StartMenu::Update() {
         }
         // S 鍵：往下
         if (Util::Input::IsKeyUp(Util::Keycode::S)) {
+            if (m_BtnClickSound) m_BtnClickSound->Play();
             if (m_CurrentOption == MenuOption::GAME_START) {
                 m_CurrentOption = MenuOption::MY_SCORE;
             } else if (m_CurrentOption == MenuOption::MY_SCORE) {
@@ -81,6 +90,7 @@ void StartMenu::Update() {
         }
         // 空白鍵：選擇
         if (Util::Input::IsKeyUp(Util::Keycode::SPACE)) {
+            if (m_BtnClickSound) m_BtnClickSound->Play();
             if (m_CurrentOption == MenuOption::GAME_START) {
                 LOG_TRACE("Game Started!");
                 m_IsGameStarted = true;

@@ -13,6 +13,11 @@ Gameplay::Gameplay() {
     std::srand(static_cast<unsigned>(std::time(nullptr)));
     m_CurrentFruitLevel = FruitFactory::GetRandomFruit();
     m_NextFruitLevel = FruitFactory::GetRandomFruit();
+    // 預先載入音效檔案
+    m_DropSound = std::make_shared<Util::SFX>("Resources/material/music/drop.wav");
+    m_MergeSound = std::make_shared<Util::SFX>("Resources/material/music/remove.wav");
+    m_DropSound->SetVolume(30);
+    m_MergeSound->SetVolume(60);
     // 1. 初始化 UIManager
     m_UIManager = std::make_unique<UIManager>();
     m_UIManager->UpdateNextFruit(m_NextFruitLevel);
@@ -76,6 +81,7 @@ void Gameplay::HandleMerges() {
             if (levelIdx >= 1 && levelIdx <= 11) {
                 m_Score += scoreTable[levelIdx];
                 m_UIManager->UpdateScore(m_Score);
+                if (m_MergeSound) m_MergeSound->Play();
             }
 
             m_World->DestroyBody(pair.a->GetBody());
@@ -121,6 +127,8 @@ void Gameplay::Update() {
     m_GameOverManager->CheckGameOver(m_Fruits, m_Score);
     m_CloudManager->Update();
     if (m_CloudManager->IsDroppingFruit()) {
+        // 播放掉落音效
+        if (m_DropSound) m_DropSound->Play();
         b2Vec2 spawnPos(m_CloudManager->GetDropX(), 280.0f);
         m_Fruits.push_back(FruitFactory::CreateFruit(m_CurrentFruitLevel, m_World.get(), spawnPos));
         m_CurrentFruitLevel = m_NextFruitLevel;

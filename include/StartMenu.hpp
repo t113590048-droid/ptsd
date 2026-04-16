@@ -3,6 +3,7 @@
 
 #include "Util/GameObject.hpp"
 #include <memory>
+#include "Util/SFX.hpp"
 
 class StartMenu {
 public:
@@ -28,6 +29,7 @@ private:
     std::shared_ptr<Util::GameObject> m_BtnScore;
     std::shared_ptr<Util::GameObject> m_BtnHowTo;
     std::shared_ptr<Util::GameObject> m_HowToPlayScreen;
+    std::shared_ptr<Util::SFX> m_BtnClickSound;
     void UpdateButtonVisuals();
     // 用來更新教學圖片的方法
     void UpdateHowToPlayVisuals();

@@ -10,6 +10,7 @@
 #include "UIManager.hpp"
 #include "Cloud.hpp"
 #include "PauseManager.hpp"
+#include "Util/SFX.hpp"
 
 class ContactListener;
 class Gameplay {
@@ -42,6 +43,9 @@ private:
 
     std::unique_ptr<GameOverManager> m_GameOverManager;
     bool m_WantsToReturnMenu = false;
+
+    std::shared_ptr<Util::SFX> m_DropSound;
+    std::shared_ptr<Util::SFX> m_MergeSound;
 };
 
 #endif
