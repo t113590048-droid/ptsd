@@ -1,123 +1,136 @@
 #include "Gameplay.hpp"
+#include "ContactListener.hpp"
 #include "Util/Image.hpp"
 #include "Util/Input.hpp"
 #include "Util/Keycode.hpp"
+#include <cstdlib>
+#include <ctime>
+#include <algorithm>
+
+const float PTM = 30.0f;
 
 Gameplay::Gameplay() {
-    // === 1. 載入背景圖 ===
-    m_Background = std::make_shared<Util::GameObject>();
-    m_Background->SetDrawable(std::make_shared<Util::Image>("Resources/material/gameplaybg.png"));
-    m_Background->SetZIndex(0);
-    m_Background->m_Transform.translation = {0.0f, 0.0f};
-    m_Background->m_Transform.scale = {1.0f, 1.0f};
+    std::srand(static_cast<unsigned>(std::time(nullptr)));
+    m_CurrentFruitLevel = FruitFactory::GetRandomFruit();
+    m_NextFruitLevel = FruitFactory::GetRandomFruit();
+    // 1. 初始化 UIManager
+    m_UIManager = std::make_unique<UIManager>();
+    m_UIManager->UpdateNextFruit(m_NextFruitLevel);
+    // 2. 初始化雲朵、瞄準線與目前拿在手上的水果
+    m_CloudManager = std::make_unique<Cloud>();
+    m_CloudManager->SetCurrentFruit(m_CurrentFruitLevel);
+    // 3. 物理世界與邊界設定
+    b2Vec2 gravity(0.0f, -30.0f);
+    m_World = std::make_unique<b2World>(gravity);
+    m_ContactListener = std::make_unique<ContactListener>(this);
+    m_World->SetContactListener(m_ContactListener.get());
 
-    // === 2. 載入容器盒 ===
-    m_Container = std::make_shared<Util::GameObject>();
-    m_Container->SetDrawable(std::make_shared<Util::Image>("Resources/material/container.png"));
-    m_Container->SetZIndex(1);
-    m_Container->m_Transform.translation = {0.0f, -30.0f};
-    m_Container->m_Transform.scale = {0.65f, 0.65f};
+    b2BodyDef groundBodyDef;
+    groundBodyDef.position.Set(0.0f / PTM, -310.0f / PTM);
+    m_GroundBody = m_World->CreateBody(&groundBodyDef);
+    b2PolygonShape groundBox;
+    groundBox.SetAsBox(1000.0f / PTM, 10.0f / PTM);
+    m_GroundBody->CreateFixture(&groundBox, 0.0f);
 
-    // === 3. 載入上方的雲 ===
-    m_Cloud = std::make_shared<Util::GameObject>();
-    m_Cloud->SetDrawable(std::make_shared<Util::Image>("Resources/material/cloud.png"));
-    m_Cloud->SetZIndex(10);
-    m_Cloud->m_Transform.translation = {48.0f, 310.0f};
-    m_Cloud->m_Transform.scale = {1.5f, 1.5f};
+    b2BodyDef leftWallDef;
+    leftWallDef.position.Set(-238.0f / PTM, 0.0f / PTM);
+    m_LeftWallBody = m_World->CreateBody(&leftWallDef);
+    b2PolygonShape leftWallBox;
+    leftWallBox.SetAsBox(10.0f / PTM, 1000.0f / PTM);
+    m_LeftWallBody->CreateFixture(&leftWallBox, 0.0f);
 
-    // 👇 新增：=== 3.5. 載入瞄準線 ===
-    m_AimLine = std::make_shared<Util::GameObject>();
-    m_AimLine->SetDrawable(std::make_shared<Util::Image>("Resources/material/aimline.png"));
-    m_AimLine->SetZIndex(2);
+    b2BodyDef rightWallDef;
+    rightWallDef.position.Set(225.0f / PTM, 0.0f / PTM);
+    m_RightWallBody = m_World->CreateBody(&rightWallDef);
+    b2PolygonShape rightWallBox;
+    rightWallBox.SetAsBox(10.0f / PTM, 1000.0f / PTM);
+    m_RightWallBody->CreateFixture(&rightWallBox, 0.0f);
 
-    // 👇 1. 調整 Y 座標：把線的「中心點」往下放，大約在容器中間的位置
-    m_AimLine->m_Transform.translation = {48.0f, 21.0f};
-
-    // 👇 2. 調整 Y 縮放比例：把線大幅拉長 (因為不知道你原圖多長，先設 20.0f 測試)
-    m_AimLine->m_Transform.scale = {1.0f, 1.95f};
-
-    // === 4. 載入 UI 文字與框框 ===
-
-    // 左上角 Score Label
-    m_ScoreLabel = std::make_shared<Util::GameObject>();
-    m_ScoreLabel->SetDrawable(std::make_shared<Util::Image>("Resources/material/score.png"));
-    m_ScoreLabel->SetZIndex(1);
-    m_ScoreLabel->m_Transform.translation = {-350.0f, 250.0f};
-    m_ScoreLabel->m_Transform.scale = {1.0f, 1.0f};
-
-    // 右上角 Next Label
-    m_NextLabel = std::make_shared<Util::GameObject>();
-    m_NextLabel->SetDrawable(std::make_shared<Util::Image>("Resources/material/next.png"));
-    m_NextLabel->SetZIndex(2);
-    m_NextLabel->m_Transform.translation = {425.0f, 280.0f};
-    m_NextLabel->m_Transform.scale = {0.3f, 0.3f};
-
-    // 右上角 泡泡框
-    m_NextBubble = std::make_shared<Util::GameObject>();
-    m_NextBubble->SetDrawable(std::make_shared<Util::Image>("Resources/material/nextfruitbubble.png"));
-    m_NextBubble->SetZIndex(1);
-    m_NextBubble->m_Transform.translation = {425.0f, 150.0f};
-    m_NextBubble->m_Transform.scale = {0.7f, 0.7f};
-
-    // 右側中間 進化圈 Label
-    m_EvolutionLabel = std::make_shared<Util::GameObject>();
-    m_EvolutionLabel->SetDrawable(std::make_shared<Util::Image>("Resources/material/circleofevolution.png"));
-    m_EvolutionLabel->SetZIndex(2);
-    m_EvolutionLabel->m_Transform.translation = {425.0f, -15.0f};
-    m_EvolutionLabel->m_Transform.scale = {0.8f, 0.8f};
-
-    // 右下角 進化圈圖
-    m_EvolutionCircle = std::make_shared<Util::GameObject>();
-    m_EvolutionCircle->SetDrawable(std::make_shared<Util::Image>("Resources/material/fruitcircle.png"));
-    m_EvolutionCircle->SetZIndex(1);
-    m_EvolutionCircle->m_Transform.translation = {425.0f, -138.0f};
-    m_EvolutionCircle->m_Transform.scale = {0.7f, 0.7f};
+    m_PauseManager = std::make_unique<PauseManager>();
+    m_GameOverManager = std::make_unique<GameOverManager>();
 }
+Gameplay::~Gameplay() = default;
+void Gameplay::RegisterMerge(Fruit* a, Fruit* b) {
+    for (const auto& pair : m_ToMerge) {
+        if ((pair.a == a && pair.b == b) || (pair.a == b && pair.b == a)) return;
+    }
+    m_ToMerge.push_back({a, b});
+}
+void Gameplay::HandleMerges() {
+    if (m_ToMerge.empty()) return;
+    int scoreTable[] = {0, 1, 3, 6, 10, 15, 21, 28, 36, 45, 55, 66};
 
+    for (auto& pair : m_ToMerge) {
+        auto itA = std::find_if(m_Fruits.begin(), m_Fruits.end(), [&](auto& f){ return f.get() == pair.a; });
+        auto itB = std::find_if(m_Fruits.begin(), m_Fruits.end(), [&](auto& f){ return f.get() == pair.b; });
+
+        if (itA != m_Fruits.end() && itB != m_Fruits.end()) {
+            if (pair.a->GetLevel() == FruitLevel::Watermelon) continue;
+
+            b2Vec2 posA = pair.a->GetBody()->GetPosition();
+            b2Vec2 posB = pair.b->GetBody()->GetPosition();
+            b2Vec2 spawnPos((posA.x + posB.x) / 2.0f * PTM, (posA.y + posB.y) / 2.0f * PTM);
+            FruitLevel nextLevel = static_cast<FruitLevel>((int)pair.a->GetLevel() + 1);
+
+            int levelIdx = static_cast<int>(nextLevel);
+            if (levelIdx >= 1 && levelIdx <= 11) {
+                m_Score += scoreTable[levelIdx];
+                m_UIManager->UpdateScore(m_Score);
+            }
+
+            m_World->DestroyBody(pair.a->GetBody());
+            m_World->DestroyBody(pair.b->GetBody());
+            m_Fruits.erase(std::remove(m_Fruits.begin(), m_Fruits.end(), *itA), m_Fruits.end());
+            itB = std::find_if(m_Fruits.begin(), m_Fruits.end(), [&](auto& f){ return f.get() == pair.b; });
+            m_Fruits.erase(std::remove(m_Fruits.begin(), m_Fruits.end(), *itB), m_Fruits.end());
+
+            if (nextLevel <= FruitLevel::Watermelon) {
+                m_Fruits.push_back(FruitFactory::CreateFruit(nextLevel, m_World.get(), spawnPos));
+            }
+        }
+    }
+    m_ToMerge.clear();
+}
 void Gameplay::Update() {
-    // === 1. 處理雲的移動邏輯 ===
-    float moveSpeed = 7.0f;
-
-    float leftLimit = -175.0f;
-    float rightLimit = 245.0f;
-
-    // 偵測 A 鍵 (向左)
-    if (Util::Input::IsKeyPressed(Util::Keycode::A)) {
-        m_Cloud->m_Transform.translation.x -= moveSpeed;
+    // 暫停邏輯 (偵測 P 鍵)
+    m_PauseManager->Update();
+    // 在暫停時按了 R，直接回首頁
+    if (m_PauseManager->IsReadyToReturnMenu()) {
+        m_WantsToReturnMenu = true;
+        return;
     }
-
-    // 偵測 D 鍵 (向右)
-    if (Util::Input::IsKeyPressed(Util::Keycode::D)) {
-        m_Cloud->m_Transform.translation.x += moveSpeed;
+    // 遊戲結束攔截器
+    if (m_GameOverManager->IsGameOver()) {
+        m_UIManager->Draw();
+        for (auto& fruit : m_Fruits) fruit->Draw();
+        m_GameOverManager->Draw();
+        if (m_GameOverManager->IsReadyToReturnMenu()) m_WantsToReturnMenu = true;
+        return;
     }
-
-    // === 2. 邊界檢查 (分開檢查左右) ===
-    if (m_Cloud->m_Transform.translation.x > rightLimit) {
-        m_Cloud->m_Transform.translation.x = rightLimit;
+    // 暫停攔截器
+    if (m_PauseManager->IsPaused()) {
+        // 暫停時：只畫出所有東西，但不執行物理跟雲朵
+        m_UIManager->Draw();
+        m_CloudManager->Draw();
+        for (auto& fruit : m_Fruits) fruit->Draw();
+        m_PauseManager->Draw(); // 畫出 PAUSE 等文字
+        return; // 提早 return，中斷下面的遊戲邏輯
     }
-    if (m_Cloud->m_Transform.translation.x < leftLimit) {
-        m_Cloud->m_Transform.translation.x = leftLimit;
+    m_World->Step(1.0f / 60.0f, 8, 3);
+    HandleMerges();
+    m_GameOverManager->CheckGameOver(m_Fruits, m_Score);
+    m_CloudManager->Update();
+    if (m_CloudManager->IsDroppingFruit()) {
+        b2Vec2 spawnPos(m_CloudManager->GetDropX(), 280.0f);
+        m_Fruits.push_back(FruitFactory::CreateFruit(m_CurrentFruitLevel, m_World.get(), spawnPos));
+        m_CurrentFruitLevel = m_NextFruitLevel;
+        m_NextFruitLevel = FruitFactory::GetRandomFruit();
+        m_UIManager->UpdateNextFruit(m_NextFruitLevel);
+        m_CloudManager->SetCurrentFruit(m_CurrentFruitLevel);
     }
-
-    // 👇 新增：=== 2.5 讓瞄準線跟著雲 ===
-    if (m_AimLine) {
-        m_AimLine->m_Transform.translation.x = m_Cloud->m_Transform.translation.x - 45;
-    }
-
-    // === 3. 執行繪製 ===
-    if (m_Background) m_Background->Draw();
-    if (m_Container) m_Container->Draw();
-
-    // 👇 新增：畫出瞄準線
-    if (m_AimLine) m_AimLine->Draw();
-
-    // 畫 UI 元件
-    if (m_ScoreLabel) m_ScoreLabel->Draw();
-    if (m_NextLabel) m_NextLabel->Draw();
-    if (m_NextBubble) m_NextBubble->Draw();
-    if (m_EvolutionLabel) m_EvolutionLabel->Draw();
-    if (m_EvolutionCircle) m_EvolutionCircle->Draw();
-
-    // 雲要在最後畫
-    if (m_Cloud) m_Cloud->Draw();
+    for (auto& fruit : m_Fruits) fruit->Update();
+    // 繪製正常畫面
+    m_UIManager->Draw();
+    m_CloudManager->Draw();
+    for (auto& fruit : m_Fruits) fruit->Draw();
 }

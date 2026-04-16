@@ -26,14 +26,13 @@ StartMenu::StartMenu() {
     m_BtnHowTo->SetZIndex(1);
     m_BtnHowTo->m_Transform.translation = {0.0f, -200.0f};
 
-    // 👇 新增：初始化教學畫面物件 (ZIndex 設為 10，確保蓋在主選單上面)
+    // 初始化教學畫面物件 (ZIndex 設為 10，確保蓋在主選單上面)
     m_HowToPlayScreen = std::make_shared<Util::GameObject>();
     m_HowToPlayScreen->SetZIndex(10);
     m_HowToPlayScreen->m_Transform.translation = {0.0f, 0.0f};
 
     UpdateButtonVisuals();
 }
-
 void StartMenu::Update() {
     // ==========================================
     // 狀態 1：如果在「教學畫面」中
@@ -54,7 +53,7 @@ void StartMenu::Update() {
             }
         }
         // 按下空白鍵或 ESC 鍵：關閉教學畫面
-        if (Util::Input::IsKeyUp(Util::Keycode::SPACE) || Util::Input::IsKeyUp(Util::Keycode::ESCAPE)) {
+        if (Util::Input::IsKeyUp(Util::Keycode::SPACE)) {
             m_IsShowingHowToPlay = false;
         }
     }
@@ -71,7 +70,6 @@ void StartMenu::Update() {
             }
             UpdateButtonVisuals();
         }
-
         // S 鍵：往下
         if (Util::Input::IsKeyUp(Util::Keycode::S)) {
             if (m_CurrentOption == MenuOption::GAME_START) {
@@ -81,8 +79,7 @@ void StartMenu::Update() {
             }
             UpdateButtonVisuals();
         }
-
-        // 👇 將原本的 RETURN 改為 SPACE (空白鍵選擇)
+        // 空白鍵：選擇
         if (Util::Input::IsKeyUp(Util::Keycode::SPACE)) {
             if (m_CurrentOption == MenuOption::GAME_START) {
                 LOG_TRACE("Game Started!");
@@ -95,20 +92,17 @@ void StartMenu::Update() {
             }
         }
     }
-
     // --- 繪製畫面 ---
     if (m_Background) m_Background->Draw();
     if (m_Logo) m_Logo->Draw();
     if (m_BtnStart) m_BtnStart->Draw();
     if (m_BtnScore) m_BtnScore->Draw();
     if (m_BtnHowTo) m_BtnHowTo->Draw();
-
-    // 👇 如果處於教學模式，就把教學圖片畫在最上層
+    // 如果處於教學模式，就把教學圖片畫在最上層
     if (m_IsShowingHowToPlay && m_HowToPlayScreen) {
         m_HowToPlayScreen->Draw();
     }
 }
-
 // 原本的按鈕圖片更新保持不變
 void StartMenu::UpdateButtonVisuals() {
     if (m_CurrentOption == MenuOption::GAME_START) {
@@ -127,8 +121,7 @@ void StartMenu::UpdateButtonVisuals() {
         m_BtnHowTo->SetDrawable(std::make_shared<Util::Image>("Resources/material/first page/button/howtoplaybutton2.png"));
     }
 }
-
-// 👇 新增：根據 m_HowToPlayPage 抽換教學圖片
+// 根據 m_HowToPlayPage 更換教學圖片
 void StartMenu::UpdateHowToPlayVisuals() {
     if (m_HowToPlayPage == 1) {
         m_HowToPlayScreen->SetDrawable(std::make_shared<Util::Image>("Resources/material/first page/howtoplay/howtoplay1.png"));

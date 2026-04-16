@@ -2,28 +2,46 @@
 #define GAMEPLAY_HPP
 
 #include "Util/GameObject.hpp"
+#include "Fruit.hpp"
 #include <memory>
+#include <vector>
+#include <box2d/box2d.h>
+#include "GameOverManager.hpp"
+#include "UIManager.hpp"
+#include "Cloud.hpp"
+#include "PauseManager.hpp"
 
+class ContactListener;
 class Gameplay {
 public:
-    Gameplay(); // 建構子：負責載入素材與設定位置
-    void Update(); // 每一幀呼叫：負責繪製
-
+    Gameplay();
+    ~Gameplay();
+    void Update();
+    void RegisterMerge(Fruit* a, Fruit* b);
+    bool WantsToReturnMenu() const { return m_WantsToReturnMenu; }
 private:
-    // --- 靜態背景物件 ---
-    std::shared_ptr<Util::GameObject> m_Background; // 整體背景
-    std::shared_ptr<Util::GameObject> m_Container;  // 水果容器盒
+    std::unique_ptr<UIManager> m_UIManager;
+    std::unique_ptr<Cloud> m_CloudManager;
+    FruitLevel m_CurrentFruitLevel;
+    FruitLevel m_NextFruitLevel;
 
-    // --- UI 元件 ---
-    std::shared_ptr<Util::GameObject> m_ScoreLabel;      // "SCORE" 文字圖片
-    std::shared_ptr<Util::GameObject> m_NextLabel;       // "NEXT" 文字圖片
-    std::shared_ptr<Util::GameObject> m_NextBubble;      // "NEXT" 下方泡泡框
-    std::shared_ptr<Util::GameObject> m_EvolutionLabel; // "Circle of evolution" 文字
-    std::shared_ptr<Util::GameObject> m_EvolutionCircle; // 水果進化圈圖
-    std::shared_ptr<Util::GameObject> m_AimLine;
+    std::vector<std::shared_ptr<Fruit>> m_Fruits;
+    std::unique_ptr<PauseManager> m_PauseManager;
 
-    // --- 準備區域 ---
-    std::shared_ptr<Util::GameObject> m_Cloud; // 上方的雲 (水果準備區)
+    struct MergePair { Fruit* a; Fruit* b; };
+    std::vector<MergePair> m_ToMerge;
+    void HandleMerges();
+
+    std::unique_ptr<b2World> m_World;
+    std::unique_ptr<ContactListener> m_ContactListener;
+    b2Body* m_GroundBody;
+    b2Body* m_LeftWallBody;
+    b2Body* m_RightWallBody;
+
+    int m_Score = 0;
+
+    std::unique_ptr<GameOverManager> m_GameOverManager;
+    bool m_WantsToReturnMenu = false;
 };
 
-#endif // GAMEPLAY_HPP
+#endif

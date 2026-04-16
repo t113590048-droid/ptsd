@@ -1,12 +1,10 @@
 #ifndef APP_HPP
 #define APP_HPP
-
 #include "pch.hpp" // IWYU pragma: export
 #include <memory>
 
 class StartMenu;
 class Gameplay;
-
 class App {
 public:
     enum class State {
@@ -14,15 +12,12 @@ public:
         UPDATE,
         END,
     };
-
     State GetCurrentState() const { return m_CurrentState; }
     void Start();
     void Update();
     void End(); // NOLINT(readability-convert-member-functions-to-static)
-
 private:
     void ValidTask();
-
 private:
     State m_CurrentState = State::START;
     std::shared_ptr<StartMenu> m_StartMenu;

@@ -22,6 +22,14 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(ptsd)
 
+# 👇 新增：下載並設定 Box2D
+FetchContent_Declare(
+        box2d
+        GIT_REPOSITORY https://github.com/erincatto/box2d.git
+        GIT_TAG v2.4.1
+)
+FetchContent_MakeAvailable(box2d)
+
 include(files.cmake)
 set(SRC_DIR ${CMAKE_SOURCE_DIR}/src)
 set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
@@ -39,6 +47,20 @@ add_executable(${PROJECT_NAME}
         src/StartMenu.cpp
         include/Gameplay.hpp
         src/Gameplay.cpp
+        include/Fruit.hpp
+        src/Fruit.cpp
+        include/FruitFactory.hpp
+        src/FruitFactory.cpp
+        src/ContactListener.cpp
+        include/ContactListener.hpp
+        include/GameOverManager.hpp
+        src/GameOverManager.cpp
+        include/UIManager.hpp
+        src/UIManager.cpp
+        include/Cloud.hpp
+        src/Cloud.cpp
+        include/PauseManager.hpp
+        src/PauseManager.cpp
 )
 
 if(MSVC)
@@ -59,6 +81,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/P
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 target_link_libraries(${PROJECT_NAME}
-    SDL2::SDL2main
-    PTSD
+        SDL2::SDL2main
+        PTSD
+        box2d
 )
