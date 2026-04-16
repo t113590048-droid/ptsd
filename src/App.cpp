@@ -8,11 +8,33 @@
 
 void App::Start() {
     LOG_TRACE("Start");
+    // 載入 BGM，並指定路徑
+    m_BGM = std::make_shared<Util::BGM>("Resources/material/music/bg.mp3");
+    // 播放 BGM(-1 代表無限循環播放)
+    // 括號裡如果不放數字，有些框架預設播一次，放 -1 保證它會一直重複播
+    m_BGM->Play(-1);
     m_StartMenu = std::make_shared<StartMenu>();// 實例化並載入選單
     m_Gameplay = nullptr;// 遊戲場景一開始先不載入 (設為空指標)
     m_CurrentState = State::UPDATE;
 }
 void App::Update() {
+    // 全域音量控制系統
+    if (m_BGM) {
+        // 按下上鍵，音量 +10
+        if (Util::Input::IsKeyDown(Util::Keycode::UP)) {
+            m_Volume += 10;
+            if (m_Volume > 128) m_Volume = 128; // 最大不超過 128
+            m_BGM->SetVolume(m_Volume);
+            LOG_TRACE("Volume Up: {}", m_Volume); // 印在終端機讓你知道目前音量
+        }
+        // 按下下鍵，音量 -10
+        if (Util::Input::IsKeyDown(Util::Keycode::DOWN)) {
+            m_Volume -= 10;
+            if (m_Volume < 0) m_Volume = 0; // 最小不低於 0 (靜音)
+            m_BGM->SetVolume(m_Volume);
+            LOG_TRACE("Volume Down: {}", m_Volume);
+        }
+    }
     // ==========================================
     // 場景切換狀態機
     // ==========================================

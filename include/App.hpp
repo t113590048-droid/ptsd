@@ -2,6 +2,7 @@
 #define APP_HPP
 #include "pch.hpp" // IWYU pragma: export
 #include <memory>
+#include "Util/BGM.hpp"
 
 class StartMenu;
 class Gameplay;
@@ -22,6 +23,8 @@ private:
     State m_CurrentState = State::START;
     std::shared_ptr<StartMenu> m_StartMenu;
     std::shared_ptr<Gameplay> m_Gameplay;
+    std::shared_ptr<Util::BGM> m_BGM;
+    int m_Volume = 64;
 };
 
 #endif
