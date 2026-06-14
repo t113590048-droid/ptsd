@@ -38,7 +38,7 @@ PauseManager::PauseManager() {
 }
 void PauseManager::Update() {
     // 偵測按下 P 鍵，切換暫停狀態
-    if (Util::Input::IsKeyDown(Util::Keycode::P)) {
+    if (Util::Input::IsKeyUp(Util::Keycode::P)) {
         m_IsPaused = !m_IsPaused;
     }
 }
@@ -51,5 +51,5 @@ void PauseManager::Draw() {
 }
 bool PauseManager::IsReadyToReturnMenu() const {
     // 只有在暫停狀態下，按下 R 才會回傳 true
-    return m_IsPaused && Util::Input::IsKeyDown(Util::Keycode::R);
+    return m_IsPaused && Util::Input::IsKeyUp(Util::Keycode::R);
 }

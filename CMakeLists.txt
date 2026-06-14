@@ -61,6 +61,17 @@ add_executable(${PROJECT_NAME}
         src/Cloud.cpp
         include/PauseManager.hpp
         src/PauseManager.cpp
+        include/Obstacle.hpp
+        include/StaticObstacle.hpp
+        include/LevelType.hpp
+        include/LevelSelectMenu.hpp
+        src/LevelSelectMenu.cpp
+        include/MovingObstacle.hpp
+        include/PortalObstacle.hpp
+        include/CheatManager.hpp
+        src/CheatManager.cpp
+        include/OpeningAnimation.hpp
+        src/OpeningAnimation.cpp
 )
 
 if(MSVC)

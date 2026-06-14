@@ -19,6 +19,8 @@ public:
     bool IsGameOver() const { return m_IsGameOver; }
     // 是否按下R鍵準備回主選單
     bool IsReadyToReturnMenu() const;
+    void UpdateAnimation(const std::vector<std::shared_ptr<Fruit>>& fruits);
+    void ForceGameOver(const std::vector<std::shared_ptr<Fruit>>& fruits, int currentScore);
 private:
     bool m_IsGameOver = false;
     float m_DeathLineY = 240.0f; // 死亡線高度 (像素)
@@ -27,5 +29,7 @@ private:
     std::shared_ptr<Util::GameObject> m_RestartText;
     std::shared_ptr<Util::GameObject> m_FinalScoreText;
     std::shared_ptr<Util::GameObject> m_Overlay;
+    bool m_IsSadAnimating = false; // 是否正在播放抖動動畫
+    float m_SadTimer = 0.0f;       // 動畫計時器
 };
 #endif

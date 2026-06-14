@@ -25,7 +25,7 @@ enum class FruitLevel {
 class Fruit {
 public:
     Fruit(b2World* world, b2Vec2 position, const std::string& imagePath, float radius, FruitLevel level, float scale);
-
+    void SetSadStatus(bool isSad);
 
     void Update();
     void Draw();
@@ -37,6 +37,7 @@ private:
     b2Body* m_PhysicsBody;
     float m_Radius;
     FruitLevel m_Level; // 記住自己的等級
+    bool m_IsSad = false;
 };
 
 // === 水果工廠 (負責查字典生水果) ===

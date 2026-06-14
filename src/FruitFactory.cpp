@@ -19,7 +19,7 @@ std::shared_ptr<Fruit> FruitFactory::CreateFruit(FruitLevel level, b2World* worl
             break;
         case FruitLevel::Strawberry:
             imagePath += "strawberry.png";
-            radius = 20.0f;
+            radius = 18.0f;
             scale = 0.6f;
             break;
         case FruitLevel::Grape:
@@ -34,12 +34,12 @@ std::shared_ptr<Fruit> FruitFactory::CreateFruit(FruitLevel level, b2World* worl
             break;
         case FruitLevel::Orange:
             imagePath += "orange.png";
-            radius = 40.0f;
+            radius = 37.0f;
             scale = 0.6f;
             break;
         case FruitLevel::Apple:
             imagePath += "apple.png";
-            radius = 50.0f;
+            radius = 47.0f;
             scale = 0.6f;
             break;
         case FruitLevel::Pear:
@@ -49,22 +49,22 @@ std::shared_ptr<Fruit> FruitFactory::CreateFruit(FruitLevel level, b2World* worl
             break;
         case FruitLevel::Peach:
             imagePath += "peach.png";
-            radius = 70.0f;
+            radius = 67.0f;
             scale = 0.6f;
             break;
         case FruitLevel::Pineapple:
             imagePath += "pineapple.png";
-            radius = 79.0f;
+            radius = 75.0f;
             scale = 0.6f;
             break;
         case FruitLevel::Melon:
             imagePath += "melon.png";
-            radius = 100.0f;
+            radius = 93.0f;
             scale = 0.6f;
             break;
         case FruitLevel::Watermelon:
             imagePath += "watermelon.png";
-            radius = 116.0f;
+            radius = 108.0f;
             scale = 0.6f;
             break;
         default:

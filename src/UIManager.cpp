@@ -2,79 +2,65 @@
 #include "Util/Image.hpp"
 #include "Util/Text.hpp"
 #include "Util/Color.hpp"
+#include <cmath> 
 
 UIManager::UIManager() {
-    // 1. 背景與容器
+    // 1. 背景 (包含容器)
     m_Background = std::make_shared<Util::GameObject>();
-    m_Background->SetDrawable(std::make_shared<Util::Image>("Resources/material/gameplaybg.png"));
+    m_Background->SetDrawable(std::make_shared<Util::Image>("Resources/material/bg_game.png"));
     m_Background->SetZIndex(0);
+    m_Background->m_Transform.scale = {0.67f, 0.67f};
 
-    m_Container = std::make_shared<Util::GameObject>();
-    m_Container->SetDrawable(std::make_shared<Util::Image>("Resources/material/container.png"));
-    m_Container->SetZIndex(1);
-    m_Container->m_Transform.translation = {0.0f, -30.0f};
-    m_Container->m_Transform.scale = {0.65f, 0.65f};
+    // ✨ 這裡已刪除 m_Container 的載入與設定
+
+    // ==========================================
     // 2. 分數區
-    m_ScoreLabel = std::make_shared<Util::GameObject>();
-    m_ScoreLabel->SetDrawable(std::make_shared<Util::Image>("Resources/material/score.png"));
-    m_ScoreLabel->m_Transform.translation = {-400.0f, 250.0f};
-    m_ScoreLabel->m_Transform.scale = {1.3f, 1.3f};
-    m_ScoreLabel->SetZIndex(2);
-
+    // ==========================================
     m_ScoreBubble = std::make_shared<Util::GameObject>();
-    m_ScoreBubble->SetDrawable(std::make_shared<Util::Image>("Resources/material/scorebubble.png"));
-    m_ScoreBubble->m_Transform.translation = {-400.0f, 150.0f};
-    m_ScoreBubble->m_Transform.scale = {0.8f, 0.8f};
+    m_ScoreBubble->SetDrawable(std::make_shared<Util::Image>("Resources/material/foam_score.png"));
+    m_ScoreBubble->m_Transform.translation = {-405.0f, 195.0f};
+    m_ScoreBubble->m_Transform.scale = {0.6f, 0.6f};
     m_ScoreBubble->SetZIndex(1);
 
     m_ScoreText = std::make_shared<Util::GameObject>();
-    UpdateScore(0); // 初始分數
-    m_ScoreText->m_Transform.translation = {-400.0f, 150.0f};
+    UpdateScore(0);
+    m_ScoreText->m_Transform.translation = {-400.0f, 160.0f};
+    m_ScoreText->m_Transform.scale = {0.7f, 0.7f};
     m_ScoreText->SetZIndex(3);
-    // 3. 預告與進化區
-    m_NextLabel = std::make_shared<Util::GameObject>();
-    m_NextLabel->SetDrawable(std::make_shared<Util::Image>("Resources/material/next.png"));
-    m_NextLabel->m_Transform.translation = {425.0f, 255.0f};
-    m_NextLabel->m_Transform.scale = {0.3f, 0.3f};
-    m_NextLabel->SetZIndex(2);
 
+    // ==========================================
+    // 3. 預告區
+    // ==========================================
     m_NextBubble = std::make_shared<Util::GameObject>();
-    m_NextBubble->SetDrawable(std::make_shared<Util::Image>("Resources/material/nextfruitbubble.png"));
+    m_NextBubble->SetDrawable(std::make_shared<Util::Image>("Resources/material/foam_next.png"));
     m_NextBubble->m_Transform.translation = {425.0f, 150.0f};
-    m_NextBubble->m_Transform.scale = {0.8f, 0.8f};
+    m_NextBubble->m_Transform.scale = {0.6f, 0.6f};
     m_NextBubble->SetZIndex(1);
 
     m_NextFruitUI = std::make_shared<Util::GameObject>();
-    m_NextFruitUI->m_Transform.translation = {425.0f, 150.0f};
+    m_NextFruitUI->m_Transform.translation = {425.0f, 160.0f};
     m_NextFruitUI->SetZIndex(2);
 
-    m_EvolutionLabel = std::make_shared<Util::GameObject>();
-    m_EvolutionLabel->SetDrawable(std::make_shared<Util::Image>("Resources/material/circleofevolution.png"));
-    m_EvolutionLabel->m_Transform.translation = {425.0f, -15.0f};
-    m_EvolutionLabel->SetZIndex(2);
-
-    m_EvolutionCircle = std::make_shared<Util::GameObject>();
-    m_EvolutionCircle->SetDrawable(std::make_shared<Util::Image>("Resources/material/fruitcircle.png"));
-    m_EvolutionCircle->m_Transform.translation = {425.0f, -138.0f};
-    m_EvolutionCircle->m_Transform.scale = {0.7f, 0.7f};
-    m_EvolutionCircle->SetZIndex(1);
-
+    // ==========================================
     // 4. 操作提示文字
+    // ==========================================
     m_ControlsText = std::make_shared<Util::GameObject>();
     m_ControlsText->SetDrawable(std::make_shared<Util::Text>(
-        "Resources/material/font/Roboto-Regular.ttf",
+        "Resources/material/font/FOT-OEDKTRSTD-E.otf",
         24,
-        "[ P : Pause    A/D : Move    Space : Drop ]",
-        Util::Color(0, 0, 0, 255) // 黑色
+        "[ P : Pause    A/D : Move    Space : Drop    C : Cheat ]",
+        Util::Color(0, 0, 0, 255)
     ));
-    m_ControlsText->SetZIndex(100);
-    m_ControlsText->m_Transform.translation = {400.0f, -345.0f};
+    m_ControlsText->SetZIndex(89);
+    m_ControlsText->m_Transform.translation = {290.0f, -345.0f};
 }
+
 void UIManager::UpdateScore(int score) {
     m_ScoreText->SetDrawable(std::make_shared<Util::Text>(
-        "Resources/material/font/Roboto-Regular.ttf", 60,
+        "Resources/material/font/FOT-OEDKTRSTD-E.otf", 60,
         std::to_string(score), Util::Color(255, 255, 255, 255)));
 }
+
 void UIManager::UpdateNextFruit(FruitLevel level) {
     std::string path = "Resources/material/fruit/";
     switch (level) {
@@ -94,16 +80,30 @@ void UIManager::UpdateNextFruit(FruitLevel level) {
     m_NextFruitUI->SetDrawable(std::make_shared<Util::Image>(path));
     m_NextFruitUI->m_Transform.scale = {0.5f, 0.5f};
 }
+
 void UIManager::Draw() {
+    static float floatTimer = 0.0f;
+    floatTimer += 1.0f / 60.0f;
+
+    float scoreOffset = std::sin(floatTimer * 3.0f) * 8.0f;
+    float nextOffset = std::sin(floatTimer * 3.0f + 1.0f) * 8.0f;
+
+    if (m_ScoreBubble) m_ScoreBubble->m_Transform.translation.y = 195.0f + scoreOffset;
+    if (m_ScoreText) m_ScoreText->m_Transform.translation.y = 160.0f + scoreOffset;
+
+    if (m_NextBubble) m_NextBubble->m_Transform.translation.y = 167.0f + nextOffset;
+    if (m_NextFruitUI) m_NextFruitUI->m_Transform.translation.y = 170.0f + nextOffset;
+
+    // ==========================================
+    // 繪圖邏輯 (✨ 已移除 m_Container)
+    // ==========================================
     if (m_Background) m_Background->Draw();
-    if (m_Container) m_Container->Draw();
+
     if (m_ScoreBubble) m_ScoreBubble->Draw();
-    if (m_ScoreLabel) m_ScoreLabel->Draw();
     if (m_ScoreText) m_ScoreText->Draw();
-    if (m_NextLabel) m_NextLabel->Draw();
+
     if (m_NextBubble) m_NextBubble->Draw();
     if (m_NextFruitUI) m_NextFruitUI->Draw();
-    if (m_EvolutionLabel) m_EvolutionLabel->Draw();
-    if (m_EvolutionCircle) m_EvolutionCircle->Draw();
+
     if (m_ControlsText) m_ControlsText->Draw();
 }

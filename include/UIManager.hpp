@@ -21,13 +21,10 @@ public:
 private:
     // 背景與框架
     std::shared_ptr<Util::GameObject> m_Background;
-    std::shared_ptr<Util::GameObject> m_Container;
     // 分數區
-    std::shared_ptr<Util::GameObject> m_ScoreLabel;
     std::shared_ptr<Util::GameObject> m_ScoreBubble;
     std::shared_ptr<Util::GameObject> m_ScoreText;
     // 預告區
-    std::shared_ptr<Util::GameObject> m_NextLabel;
     std::shared_ptr<Util::GameObject> m_NextBubble;
     std::shared_ptr<Util::GameObject> m_NextFruitUI;
     // 進化圖表

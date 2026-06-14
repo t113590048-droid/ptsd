@@ -53,6 +53,12 @@ void GameOverManager::CheckGameOver(const std::vector<std::shared_ptr<Fruit>>& f
         m_FramesAboveLine++;
         if (m_FramesAboveLine >= 300) {
             m_IsGameOver = true; // 宣告死亡
+            // ✨ 啟動死亡抖動動畫！
+            m_IsSadAnimating = true;
+            m_SadTimer = 2.0f; // 設定為 2 秒
+            for (auto& fruit : fruits) {
+                fruit->SetSadStatus(true);
+            }
             // 在死亡的瞬間，建立「最終分數」的文字物件
             m_FinalScoreText = std::make_shared<Util::GameObject>();
             m_FinalScoreText->SetDrawable(std::make_shared<Util::Text>(
@@ -77,4 +83,43 @@ void GameOverManager::Draw() {
 }
 bool GameOverManager::IsReadyToReturnMenu() const {
     return m_IsGameOver && Util::Input::IsKeyDown(Util::Keycode::R);
+}
+void GameOverManager::UpdateAnimation(const std::vector<std::shared_ptr<Fruit>>& fruits) {
+    if (m_IsSadAnimating) {
+        m_SadTimer -= 1.0f / 60.0f; // 假設遊戲 60FPS，每幀扣除時間
+
+        if (m_SadTimer <= 0.0f) {
+            m_IsSadAnimating = false;
+
+            // 時間到！把所有水果變回正常版，停止抖動
+            for (auto& fruit : fruits) {
+                fruit->SetSadStatus(false);
+            }
+        }
+    }
+}
+void GameOverManager::ForceGameOver(const std::vector<std::shared_ptr<Fruit>>& fruits, int currentScore) {
+    if (m_IsGameOver) return; // 如果已經死了，就不用再死一次
+
+    m_IsGameOver = true;
+
+    // ✨ 啟動死亡抖動動畫！
+    m_IsSadAnimating = true;
+    m_SadTimer = 2.0f;
+
+    // 讓場上所有水果瞬間切換成 Sad 版
+    for (auto& fruit : fruits) {
+        fruit->SetSadStatus(true);
+    }
+
+    // ✨ 建立最終分數文字
+    m_FinalScoreText = std::make_shared<Util::GameObject>();
+    m_FinalScoreText->SetDrawable(std::make_shared<Util::Text>(
+        "Resources/material/font/Roboto-Regular.ttf",
+        60,
+        "Score: " + std::to_string(currentScore),
+        Util::Color(255, 215, 0, 255)
+    ));
+    m_FinalScoreText->SetZIndex(100);
+    m_FinalScoreText->m_Transform.translation = {0.0f, -10.0f};
 }

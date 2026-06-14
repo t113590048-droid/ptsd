@@ -36,14 +36,48 @@ Fruit::Fruit(b2World* world, b2Vec2 position, const std::string& imagePath, floa
     m_PhysicsBody->CreateFixture(&fixtureDef);
 }
 void Fruit::Update() {
-    b2Vec2 position = m_PhysicsBody->GetPosition();
-    float angle = m_PhysicsBody->GetAngle();
-    // 拿出來畫圖時：把公尺 乘以 PTM 變回像素
-    m_VisualComponent->m_Transform.translation = {position.x * PTM, position.y * PTM};
-    m_VisualComponent->m_Transform.rotation = angle;
 }
 void Fruit::Draw() {
-    if (m_VisualComponent) {
-        m_VisualComponent->Draw();
+    if (!m_VisualComponent) return; // 也要改成 m_VisualComponent
+
+    // 取得 Box2D 的真實物理座標
+    b2Vec2 pos = m_PhysicsBody->GetPosition();
+    float visualX = pos.x * PTM;
+    float visualY = pos.y * PTM;
+
+    // ✨ 如果是在哭泣狀態，就產生一個極小的隨機偏移來製造抖動 (X 跟 Y 隨機 -3.0 ~ 3.0)
+    if (m_IsSad) {
+        visualX += ((std::rand() % 7) - 3) * 1.0f;
+        visualY += ((std::rand() % 7) - 3) * 1.0f;
     }
+
+    // 將算好的視覺座標套用到 GameObject 上
+    m_VisualComponent->m_Transform.translation = {visualX, visualY};
+    m_VisualComponent->m_Transform.rotation = m_PhysicsBody->GetAngle();
+
+    m_VisualComponent->Draw();
+    }
+void Fruit::SetSadStatus(bool isSad) {
+    m_IsSad = isSad;
+    std::string path = "Resources/material/fruit/";
+
+    // 如果是 isSad 就加上 "_sad.png"，否則就是普通的 ".png"
+    std::string suffix = isSad ? "_sad.png" : ".png";
+
+    switch (GetLevel()) {
+        case FruitLevel::Cherry: path += "cherry" + suffix; break;
+        case FruitLevel::Strawberry: path += "strawberry" + suffix; break;
+        case FruitLevel::Grape: path += "grape" + suffix; break;
+        case FruitLevel::tangerine: path += "tangerine" + suffix; break;
+        case FruitLevel::Orange: path += "orange" + suffix; break;
+        case FruitLevel::Apple: path += "apple" + suffix; break;
+        case FruitLevel::Pear: path += "pear" + suffix; break;
+        case FruitLevel::Peach: path += "peach" + suffix; break;
+        case FruitLevel::Pineapple: path += "pineapple" + suffix; break;
+        case FruitLevel::Melon: path += "melon" + suffix; break;
+        case FruitLevel::Watermelon: path += "watermelon" + suffix; break;
+        default: path += "cherry" + suffix; break;
+    }
+
+    m_VisualComponent->SetDrawable(std::make_shared<Util::Image>(path));
 }
