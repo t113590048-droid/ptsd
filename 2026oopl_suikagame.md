@@ -48,12 +48,11 @@
 
 | 階段 | 遊戲畫面 |
 | :---: | :---: |
-| 開始畫面 | <img src="FinalProjectImg/開始畫面.jpg" width="400"> |
-| 開場門簾動畫 | <img src="FinalProjectImg/開場動畫.jpg" width="400"> |
-| 遊戲進行中 | <img src="FinalProjectImg/遊戲中.jpg" width="400"> |
-| 水果合成瞬間 | <img src="FinalProjectImg/合成.jpg" width="400"> |
-| 哭鬧震動階段 | <img src="FinalProjectImg/哭鬧.jpg" width="400"> |
-| Game Over 結算 | <img src="FinalProjectImg/結算.jpg" width="400"> |
+| 開始畫面 | <img src="Resources/material/FinalProjectImg/開始畫面.png" width="400"> |
+| 開場門簾動畫 | <img src="Resources/material/FinalProjectImg/開場動畫.png" width="400"> |
+| 遊戲進行中 | <img src="Resources/material/FinalProjectImg/遊戲中.png" width="400"> |
+| 哭鬧震動階段 | <img src="Resources/material/FinalProjectImg/哭鬧.png" width="400"> |
+| Game Over 結算 | <img src="Resources/material/FinalProjectImg/結算.png" width="400"> |
 
 ---
 
