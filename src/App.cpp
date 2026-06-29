@@ -7,6 +7,7 @@
 void App::Start() {
     LOG_TRACE("Start");
     m_BGM = std::make_shared<Util::BGM>("Resources/material/music/bg.mp3");
+    m_BGM->SetVolume(m_Volume);
     m_BGM->Play(-1);
     m_StartMenu = std::make_shared<StartMenu>();
     m_LevelSelectMenu = nullptr;

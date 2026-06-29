@@ -40,11 +40,13 @@ private:
     // --- 主選單 (模式選擇) ---
     std::vector<std::shared_ptr<Util::GameObject>> m_Options;
     std::vector<std::shared_ptr<Util::Text>> m_OptionTexts;
+    std::vector<std::string> m_OptionStrings;
     int m_CurrentIndex = 0; // 主選單的光標位置
 
     // --- 子選單 (小關選擇) ---
     std::vector<std::shared_ptr<Util::GameObject>> m_SubOptions;
     std::vector<std::shared_ptr<Util::Text>> m_SubOptionTexts;
+    std::vector<std::string> m_SubOptionStrings;
     int m_SubIndex = 0;     // 子選單的光標位置
 
     bool m_IsSelected = false;

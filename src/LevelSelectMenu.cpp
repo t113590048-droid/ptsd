@@ -17,7 +17,7 @@ LevelSelectMenu::LevelSelectMenu() {
     // ==========================================
     // 1. 建立主選單選項
     // ==========================================
-    std::vector<std::string> optionTexts = {
+    m_OptionStrings = {
         "1. Normal Mode",
         "2. Static Pegs",
         "3. Moving Platforms",
@@ -28,7 +28,7 @@ LevelSelectMenu::LevelSelectMenu() {
     float startY = 80.0f;
     for (int i = 0; i < 5; ++i) {
         auto textObj = std::make_shared<Util::GameObject>();
-        auto textComp = std::make_shared<Util::Text>("Resources/material/font/Roboto-Regular.ttf", 40, optionTexts[i], Util::Color(200, 200, 200, 255));
+        auto textComp = std::make_shared<Util::Text>("Resources/material/font/Roboto-Regular.ttf", 40, m_OptionStrings[i], Util::Color(200, 200, 200, 255));
 
         textObj->SetDrawable(textComp);
         textObj->SetZIndex(1);
@@ -41,9 +41,10 @@ LevelSelectMenu::LevelSelectMenu() {
     // ==========================================
     // 2. 建立子選單選項 (5小關 + 返回)
     // ==========================================
+    m_SubOptionStrings = { " ", " ", " ", " ", " ", " " };
     for (int i = 0; i < 6; ++i) {
         auto textObj = std::make_shared<Util::GameObject>();
-        auto textComp = std::make_shared<Util::Text>("Resources/material/font/Roboto-Regular.ttf", 40, " ", Util::Color(200, 200, 200, 255));
+        auto textComp = std::make_shared<Util::Text>("Resources/material/font/Roboto-Regular.ttf", 40, m_SubOptionStrings[i], Util::Color(200, 200, 200, 255));
 
         textObj->SetDrawable(textComp);
         textObj->SetZIndex(1);
@@ -68,9 +69,9 @@ void LevelSelectMenu::SetupSubMenuText() {
 
     // 動態填寫 1~5 關的文字
     for (int i = 0; i < 5; ++i) {
-        m_SubOptionTexts[i]->SetText("Stage " + prefix + std::to_string(i + 1));
+        m_SubOptionStrings[i] = "Stage " + prefix + std::to_string(i + 1);
     }
-    m_SubOptionTexts[5]->SetText("Back to Modes");
+    m_SubOptionStrings[5] = "Back to Modes";
 }
 
 void LevelSelectMenu::Update() {
@@ -136,12 +137,16 @@ void LevelSelectMenu::UpdateVisuals() {
     if (m_State == MenuState::MAIN_MENU) {
         for (int i = 0; i < 5; ++i) {
             auto color = (i == m_CurrentIndex) ? Util::Color(255, 215, 0, 255) : Util::Color(150, 150, 150, 255);
-            m_OptionTexts[i]->SetColor(color);
+            auto textComp = std::make_shared<Util::Text>("Resources/material/font/Roboto-Regular.ttf", 40, m_OptionStrings[i], color);
+            m_Options[i]->SetDrawable(textComp);
+            m_OptionTexts[i] = textComp;
         }
     } else {
         for (int i = 0; i < 6; ++i) {
             auto color = (i == m_SubIndex) ? Util::Color(255, 215, 0, 255) : Util::Color(150, 150, 150, 255);
-            m_SubOptionTexts[i]->SetColor(color);
+            auto textComp = std::make_shared<Util::Text>("Resources/material/font/Roboto-Regular.ttf", 40, m_SubOptionStrings[i], color);
+            m_SubOptions[i]->SetDrawable(textComp);
+            m_SubOptionTexts[i] = textComp;
         }
     }
 }

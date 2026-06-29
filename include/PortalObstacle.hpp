@@ -3,6 +3,7 @@
 
 #include "Obstacle.hpp"
 #include "Util/Image.hpp"
+#include <string>
 
 class PortalObstacle : public Obstacle {
 public:
@@ -26,4 +27,33 @@ public:
     } // 無物理剛體，純視覺
     glm::vec2 GetPos() const { return m_VisualComponent->m_Transform.translation; }
 };
+
+class MovingPortalObstacle : public PortalObstacle {
+private:
+    float m_LeftBound, m_RightBound;
+    float m_Speed;
+    int m_Direction; // 1: 右, -1: 左
+
+public:
+    MovingPortalObstacle(b2Vec2 position, float leftBound, float rightBound, float speed, const std::string& imagePath, float scale, int initialDirection = 1)
+        : PortalObstacle(position, imagePath, scale), m_LeftBound(leftBound), m_RightBound(rightBound), m_Speed(speed), m_Direction(initialDirection) {}
+
+    void Update() override {
+        // 旋轉傳送門
+        PortalObstacle::Update();
+
+        // 水平移動
+        glm::vec2 pos = m_VisualComponent->m_Transform.translation;
+        pos.x += m_Direction * m_Speed;
+        if (pos.x >= m_RightBound) {
+            pos.x = m_RightBound;
+            m_Direction = -1;
+        } else if (pos.x <= m_LeftBound) {
+            pos.x = m_LeftBound;
+            m_Direction = 1;
+        }
+        m_VisualComponent->m_Transform.translation = pos;
+    }
+};
+
 #endif

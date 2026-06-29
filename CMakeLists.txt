@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(REPLACE_WITH_YOUR_PROJECT_NAME)
+project(SuikaGame)
 set(CMAKE_POLICY_VERSION_MINIMUM "3.5")
 set(CMAKE_CXX_STANDARD 17)
 
@@ -91,5 +91,8 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_CURRENT_SOURCE_DIR}/Resources"
         "${CMAKE_CURRENT_BINARY_DIR}/Resources"
-        COMMENT "正在將 Resources 資料夾複製到執行檔目錄以防止破圖..."
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_CURRENT_BINARY_DIR}/bin/glew32d.dll"
+        "${CMAKE_CURRENT_BINARY_DIR}/glew32d.dll"
+        COMMENT "正在將 Resources 資料夾與 DLL 複製到執行檔目錄以防止破圖與遺失元件..."
 )

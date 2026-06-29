@@ -4,37 +4,57 @@
 #include <string>
 
 OpeningAnimation::OpeningAnimation() {
-    // 1. 載入 Ready 與 Go 圖片
+    // 1. 載入 Ready 與 Go 圖片 (使用 static 緩存避免每次載入與上傳紋理)
+    static auto readyImage = std::make_shared<Util::Image>("Resources/material/first page/ready.png");
     m_ReadyText = std::make_shared<Util::GameObject>();
-    m_ReadyText->SetDrawable(std::make_shared<Util::Image>("Resources/material/first page/ready.png"));
+    m_ReadyText->SetDrawable(readyImage);
     m_ReadyText->SetZIndex(99);
     m_ReadyText->m_Transform.scale = {0.4f, 0.4f};
 
+    static auto goImage = std::make_shared<Util::Image>("Resources/material/first page/go.png");
     m_GoText = std::make_shared<Util::GameObject>();
-    m_GoText->SetDrawable(std::make_shared<Util::Image>("Resources/material/first page/go.png"));
+    m_GoText->SetDrawable(goImage);
     m_GoText->SetZIndex(99);
     m_GoText->m_Transform.scale = {0.4f, 0.4f};
 
-    // 2. 載入 0.png 到 10.png 的泡泡水果
+    // 2. 載入 0.png 到 10.png 的泡泡水果 (使用 static 緩存)
+    static std::vector<std::shared_ptr<Util::Image>> bubbleImages;
+    if (bubbleImages.empty()) {
+        for (int i = 0; i < 11; i++) {
+            std::string path = "Resources/material/fruit/" + std::to_string(i) + ".png";
+            bubbleImages.push_back(std::make_shared<Util::Image>(path));
+        }
+    }
     for (int i = 0; i < 11; i++) {
         auto bubble = std::make_shared<Util::GameObject>();
-        std::string path = "Resources/material/fruit/" + std::to_string(i) + ".png";
-        bubble->SetDrawable(std::make_shared<Util::Image>(path));
+        bubble->SetDrawable(bubbleImages[i]);
         bubble->SetZIndex(98);
         bubble->m_Transform.scale = {0.4f, 0.4f};
         m_BubbleFruits.push_back(bubble);
     }
 
-    // 3. 左右布幕設定
+    // 3. 預先載入布幕圖片 cloth1.png 到 cloth5.png (使用 static 緩存)
+    static std::vector<std::shared_ptr<Util::Image>> curtainImages;
+    if (curtainImages.empty()) {
+        for (int i = 1; i <= 5; i++) {
+            std::string path = "Resources/material/npc/cloth" + std::to_string(i) + ".png";
+            curtainImages.push_back(std::make_shared<Util::Image>(path));
+        }
+    }
+    m_CurtainImages = curtainImages;
+
+    // 4. 左右布幕設定
     m_LeftCurtain = std::make_shared<Util::GameObject>();
-    m_LeftCurtain->SetDrawable(std::make_shared<Util::Image>("Resources/material/npc/cloth5.png"));
+    m_LeftCurtain->SetDrawable(m_CurtainImages[4]);
     m_LeftCurtain->SetZIndex(90);
     m_LeftCurtain->m_Transform.scale = {0.72f, 0.72f};
+    m_LeftCurtain->m_Transform.translation = {-1200.0f, 0.0f}; // ✨ 初始化起點，防止第一幀出現在中間 (0, 0)
 
     m_RightCurtain = std::make_shared<Util::GameObject>();
-    m_RightCurtain->SetDrawable(std::make_shared<Util::Image>("Resources/material/npc/cloth5.png"));
+    m_RightCurtain->SetDrawable(m_CurtainImages[4]);
     m_RightCurtain->SetZIndex(90);
     m_RightCurtain->m_Transform.scale = {-0.72f, 0.72f}; // 水平鏡像翻轉
+    m_RightCurtain->m_Transform.translation = {1200.0f, 0.0f}; // ✨ 初始化起點，防止第一幀出現在中間 (0, 0)
 }
 
 void OpeningAnimation::Update(float deltaTime) {
@@ -67,9 +87,8 @@ void OpeningAnimation::Update(float deltaTime) {
         if (m_CurtainAnimTimer > 0.1f && m_CurtainFrame > 1) {
             m_CurtainAnimTimer = 0.0f;
             m_CurtainFrame--;
-            std::string path = "Resources/material/npc/cloth" + std::to_string(m_CurtainFrame) + ".png";
-            m_LeftCurtain->SetDrawable(std::make_shared<Util::Image>(path));
-            m_RightCurtain->SetDrawable(std::make_shared<Util::Image>(path));
+            m_LeftCurtain->SetDrawable(m_CurtainImages[m_CurtainFrame - 1]);
+            m_RightCurtain->SetDrawable(m_CurtainImages[m_CurtainFrame - 1]);
         }
     }
     // ==========================================

@@ -3,6 +3,7 @@
 #include "Util/Color.hpp"
 #include "Util/Image.hpp"
 #include "Util/Input.hpp"
+#include "ScoreManager.hpp"
 #include "Util/Keycode.hpp"
 #include <string>
 #include <cmath>
@@ -53,6 +54,16 @@ void GameOverManager::CheckGameOver(const std::vector<std::shared_ptr<Fruit>>& f
         m_FramesAboveLine++;
         if (m_FramesAboveLine >= 300) {
             m_IsGameOver = true; // 宣告死亡
+            
+            // 紀錄分數與統計資料
+            int maxFruit = 1;
+            for (const auto& fruit : fruits) {
+                if (static_cast<int>(fruit->GetLevel()) + 1 > maxFruit) {
+                    maxFruit = static_cast<int>(fruit->GetLevel()) + 1;
+                }
+            }
+            ScoreManager::RecordGame(currentScore, maxFruit);
+
             // ✨ 啟動死亡抖動動畫！
             m_IsSadAnimating = true;
             m_SadTimer = 2.0f; // 設定為 2 秒
@@ -102,6 +113,15 @@ void GameOverManager::ForceGameOver(const std::vector<std::shared_ptr<Fruit>>& f
     if (m_IsGameOver) return; // 如果已經死了，就不用再死一次
 
     m_IsGameOver = true;
+    
+    // 紀錄分數與統計資料
+    int maxFruit = 1;
+    for (const auto& fruit : fruits) {
+        if (static_cast<int>(fruit->GetLevel()) + 1 > maxFruit) {
+            maxFruit = static_cast<int>(fruit->GetLevel()) + 1;
+        }
+    }
+    ScoreManager::RecordGame(currentScore, maxFruit);
 
     // ✨ 啟動死亡抖動動畫！
     m_IsSadAnimating = true;

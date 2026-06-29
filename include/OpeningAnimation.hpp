@@ -2,6 +2,7 @@
 #define OPENINGANIMATION_HPP
 
 #include "Util/GameObject.hpp"
+#include "Util/Image.hpp"
 #include <vector>
 #include <memory>
 
@@ -16,7 +17,7 @@ public:
     void Draw();
 
     bool IsFinished() const { return m_State == State::FINISHED; }
-    bool IsCurtainClosed() const { return m_Timer > 1.0f; }
+    bool IsCurtainClosed() const { return m_Timer >= 0.5f; }
     bool IsBlocking() const { return m_Timer < 4.0f; }
 
 private:
@@ -33,6 +34,7 @@ private:
     std::shared_ptr<Util::GameObject> m_RightCurtain;
     int m_CurtainFrame = 5;
     float m_CurtainAnimTimer = 0.0f;
+    std::vector<std::shared_ptr<Util::Image>> m_CurtainImages;
 };
 
 #endif // OPENINGANIMATION_HPP

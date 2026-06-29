@@ -48,11 +48,11 @@ UIManager::UIManager() {
     m_ControlsText->SetDrawable(std::make_shared<Util::Text>(
         "Resources/material/font/FOT-OEDKTRSTD-E.otf",
         24,
-        "[ P : Pause    A/D : Move    Space : Drop    C : Cheat ]",
+        "[ P : Pause    A/D : Move    Space : Drop    C : Cheat    UP/DOWN : Volume ]",
         Util::Color(0, 0, 0, 255)
     ));
     m_ControlsText->SetZIndex(89);
-    m_ControlsText->m_Transform.translation = {290.0f, -345.0f};
+    m_ControlsText->m_Transform.translation = {100.0f, -345.0f};
 }
 
 void UIManager::UpdateScore(int score) {

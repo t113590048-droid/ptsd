@@ -3,6 +3,8 @@
 
 #include "Util/GameObject.hpp"
 #include <memory>
+#include <vector>
+#include <string>
 
 class StartMenu {
 public:
@@ -21,6 +23,9 @@ private:
     // 用來記錄是否正在顯示教學畫面，以及目前在第幾頁
     bool m_IsShowingHowToPlay = false;
     int m_HowToPlayPage = 1;
+    // 用來記錄是否正在顯示個人排行榜/計分表
+    bool m_IsShowingScoreboard = false;
+
     // 宣告 UI 遊戲物件
     std::shared_ptr<Util::GameObject> m_Background;
     std::shared_ptr<Util::GameObject> m_Logo;
@@ -28,8 +33,16 @@ private:
     std::shared_ptr<Util::GameObject> m_BtnScore;
     std::shared_ptr<Util::GameObject> m_BtnHowTo;
     std::shared_ptr<Util::GameObject> m_HowToPlayScreen;
+
+    // 計分表 UI 遊戲物件
+    std::shared_ptr<Util::GameObject> m_ScoreboardTitle;
+    std::vector<std::shared_ptr<Util::GameObject>> m_ScoreboardLines;
+    std::shared_ptr<Util::GameObject> m_ScoreboardReturnPrompt;
+
     void UpdateButtonVisuals();
     // 用來更新教學圖片的方法
     void UpdateHowToPlayVisuals();
+    // 用來更新並載入計分表數據的方法
+    void UpdateScoreboardVisuals();
 };
-#endif
+#endif // STARTMENU_HPP

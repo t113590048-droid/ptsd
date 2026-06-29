@@ -494,3 +494,9 @@ lib/
 
 # Doxygen generated files
 docs/html/
+
+# Game score data (personal play records)
+scores.txt
+
+# Scratch output directory
+scratch_out/

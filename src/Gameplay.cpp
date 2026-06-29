@@ -91,12 +91,85 @@ Gameplay::Gameplay(LevelType level, int subLevel) : m_CurrentSubLevel(subLevel),
         }
     }
     else if (level == LevelType::MOVING_PLATFORMS) {
-        m_Obstacles.push_back(std::make_shared<MovingObstacle>(
-            m_World.get(), b2Vec2(0.0f / PTM, 30.0f / PTM), -150.0f, 150.0f, 3.0f, "Resources/material/platform.png", 20.0f / PTM, 0.15));
+        switch (m_CurrentSubLevel) {
+            case 1: // 3-1: 原始的單台水平移動飛碟
+                m_Obstacles.push_back(std::make_shared<MovingObstacle>(
+                    m_World.get(), b2Vec2(0.0f / PTM, 30.0f / PTM), -150.0f, 150.0f, 3.0f, "Resources/material/platform.png", 20.0f / PTM, 0.15));
+                break;
+            case 2: // 3-2: 兩個對稱飛上下間隔一些的飛碟
+                // 左邊飛碟：X = -100.0f，Y 初始在最底部 -150.0f，往上移動 (速度 3.0f)，範圍 [-150.0f, 120.0f]
+                m_Obstacles.push_back(std::make_shared<VerticalMovingObstacle>(
+                    m_World.get(), b2Vec2(-100.0f / PTM, -150.0f / PTM), -150.0f, 120.0f, 3.0f, "Resources/material/platform.png", 20.0f / PTM, 0.15));
+                // 右邊飛碟：X = 100.0f，Y 初始在最頂部 120.0f，往下移動 (速度 -3.0f)，範圍 [-150.0f, 120.0f]
+                m_Obstacles.push_back(std::make_shared<VerticalMovingObstacle>(
+                    m_World.get(), b2Vec2(100.0f / PTM, 120.0f / PTM), -150.0f, 120.0f, -3.0f, "Resources/material/platform.png", 20.0f / PTM, 0.15));
+                break;
+            case 3: // 3-3: 一台圓形移動飛碟
+                // 圓心 (0, -30)，旋轉半徑 90.0f，速度 1.8f rad/s
+                m_Obstacles.push_back(std::make_shared<CircularMovingObstacle>(
+                    m_World.get(), b2Vec2(0.0f / PTM, -30.0f / PTM), 90.0f, 1.8f, "Resources/material/platform.png", 20.0f / PTM, 0.15));
+                break;
+            case 4: // 3-4: 兩台同步上下移動的飛碟中間加一台相反路徑的 (同3-2從頂底極限出發)
+                // 左邊飛碟：X = -110.0f，Y 初始在最頂部 120.0f，往下移動 (速度 -3.0f)，範圍 [-150.0f, 120.0f]
+                m_Obstacles.push_back(std::make_shared<VerticalMovingObstacle>(
+                    m_World.get(), b2Vec2(-110.0f / PTM, 120.0f / PTM), -150.0f, 120.0f, -3.0f, "Resources/material/platform.png", 20.0f / PTM, 0.15));
+                // 中間飛碟：X = 0.0f，Y 初始在最底部 -150.0f，往上移動 (速度 3.0f)，範圍 [-150.0f, 120.0f]
+                m_Obstacles.push_back(std::make_shared<VerticalMovingObstacle>(
+                    m_World.get(), b2Vec2(0.0f / PTM, -150.0f / PTM), -150.0f, 120.0f, 3.0f, "Resources/material/platform.png", 20.0f / PTM, 0.15));
+                // 右邊飛碟：X = 110.0f，Y 初始在最頂部 120.0f，往下移動 (速度 -3.0f)，範圍 [-150.0f, 120.0f]
+                m_Obstacles.push_back(std::make_shared<VerticalMovingObstacle>(
+                    m_World.get(), b2Vec2(110.0f / PTM, 120.0f / PTM), -150.0f, 120.0f, -3.0f, "Resources/material/platform.png", 20.0f / PTM, 0.15));
+                break;
+            case 5: // 3-5: 自行發想一個難度大於前面的設計
+                // 1. 頂部釘子：(0, 40.0f)
+                m_Obstacles.push_back(std::make_shared<StaticObstacle>(m_World.get(), b2Vec2(0.0f / PTM, 40.0f / PTM), "Resources/material/peg.png", 16.0f / PTM, 0.12f));
+                // 2. 左側釘子：(-120.0f, -50.0f)
+                m_Obstacles.push_back(std::make_shared<StaticObstacle>(m_World.get(), b2Vec2(-120.0f / PTM, -50.0f / PTM), "Resources/material/peg.png", 16.0f / PTM, 0.12f));
+                // 3. 右側釘子：(120.0f, -50.0f)
+                m_Obstacles.push_back(std::make_shared<StaticObstacle>(m_World.get(), b2Vec2(120.0f / PTM, -50.0f / PTM), "Resources/material/peg.png", 16.0f / PTM, 0.12f));
+                // 4. 底部釘子：(0, -140.0f)
+                m_Obstacles.push_back(std::make_shared<StaticObstacle>(m_World.get(), b2Vec2(0.0f / PTM, -140.0f / PTM), "Resources/material/peg.png", 16.0f / PTM, 0.12f));
+
+                // 5. 繞著四顆釘子做「直式八字形」軌道公轉的飛碟 (中心 (0, -50), X振幅 160, Y振幅 145, 角速度 1.5f rad/s, 比例 0.13f)
+                m_Obstacles.push_back(std::make_shared<Figure8MovingObstacle>(
+                    m_World.get(), b2Vec2(0.0f / PTM, -50.0f / PTM), 160.0f, 145.0f, 1.5f, "Resources/material/platform.png", 18.0f / PTM, 0.13f));
+                break;
+        }
     }
     else if (level == LevelType::PORTAL) {
-        m_Obstacles.push_back(std::make_shared<PortalObstacle>(b2Vec2(-150.0f / PTM, 100.0f / PTM), "Resources/material/portal_1.png", 0.13f));
-        m_Obstacles.push_back(std::make_shared<PortalObstacle>(b2Vec2(150.0f / PTM, -100.0f / PTM), "Resources/material/portal_2.png", 0.13f));
+        switch (m_CurrentSubLevel) {
+            case 1: // 4-1: 原始靜止雙傳送門
+                m_Obstacles.push_back(std::make_shared<PortalObstacle>(b2Vec2(-150.0f / PTM, 100.0f / PTM), "Resources/material/portal_1.png", 0.13f));
+                m_Obstacles.push_back(std::make_shared<PortalObstacle>(b2Vec2(150.0f / PTM, -100.0f / PTM), "Resources/material/portal_2.png", 0.13f));
+                break;
+            case 2: // 4-2: 水平來回移動的入口 + 靜止底部中央出口
+                m_Obstacles.push_back(std::make_shared<MovingPortalObstacle>(b2Vec2(0.0f / PTM, 120.0f / PTM), -140.0f, 140.0f, 2.5f, "Resources/material/portal_1.png", 0.13f));
+                m_Obstacles.push_back(std::make_shared<PortalObstacle>(b2Vec2(0.0f / PTM, -120.0f / PTM), "Resources/material/portal_2.png", 0.13f));
+                break;
+            case 3: // 4-3: 雙傳送門交叉傳送 (四個傳送門)
+                // 第一對：左上入口 A -> 右下出口 B
+                m_Obstacles.push_back(std::make_shared<PortalObstacle>(b2Vec2(-140.0f / PTM, 100.0f / PTM), "Resources/material/portal_1.png", 0.12f));
+                m_Obstacles.push_back(std::make_shared<PortalObstacle>(b2Vec2(120.0f / PTM, -120.0f / PTM), "Resources/material/portal_2.png", 0.12f));
+                // 第二對：右上入口 C -> 左下出口 D
+                m_Obstacles.push_back(std::make_shared<PortalObstacle>(b2Vec2(140.0f / PTM, 100.0f / PTM), "Resources/material/portal_1.png", 0.12f));
+                m_Obstacles.push_back(std::make_shared<PortalObstacle>(b2Vec2(-120.0f / PTM, -120.0f / PTM), "Resources/material/portal_2.png", 0.12f));
+                break;
+            case 4: // 4-4: 雙傳送門同步反向水平移動 (入口與出口都移動)
+                // 入口 A：從 -120.0f 出發往右 (1)
+                m_Obstacles.push_back(std::make_shared<MovingPortalObstacle>(b2Vec2(-120.0f / PTM, 120.0f / PTM), -150.0f, 150.0f, 3.0f, "Resources/material/portal_1.png", 0.13f, 1));
+                // 出口 B：從 120.0f 出發往左 (-1)
+                m_Obstacles.push_back(std::make_shared<MovingPortalObstacle>(b2Vec2(120.0f / PTM, -100.0f / PTM), -150.0f, 150.0f, 3.0f, "Resources/material/portal_2.png", 0.13f, -1));
+                break;
+            case 5: // 4-5: 傳送迷宮 (雙移動傳送門 + 中間兩個靜止障礙釘子)
+                // 入口 A 移動：
+                m_Obstacles.push_back(std::make_shared<MovingPortalObstacle>(b2Vec2(-100.0f / PTM, 120.0f / PTM), -140.0f, 140.0f, 2.5f, "Resources/material/portal_1.png", 0.13f, 1));
+                // 出口 B 移動：
+                m_Obstacles.push_back(std::make_shared<MovingPortalObstacle>(b2Vec2(100.0f / PTM, -120.0f / PTM), -140.0f, 140.0f, 2.5f, "Resources/material/portal_2.png", 0.13f, -1));
+                // 兩個靜止障礙釘子：
+                m_Obstacles.push_back(std::make_shared<StaticObstacle>(m_World.get(), b2Vec2(-70.0f / PTM, 0.0f / PTM), "Resources/material/peg.png", 16.0f / PTM, 0.12f));
+                m_Obstacles.push_back(std::make_shared<StaticObstacle>(m_World.get(), b2Vec2(70.0f / PTM, 0.0f / PTM), "Resources/material/peg.png", 16.0f / PTM, 0.12f));
+                break;
+        }
     }
 
     m_PauseManager = std::make_unique<PauseManager>();
@@ -289,17 +362,25 @@ void Gameplay::Update() {
 
     for (auto& obs : m_Obstacles) obs->Update();
 
-    if (m_CurrentLevelType == LevelType::PORTAL && m_Obstacles.size() >= 2) {
-        auto portalA = std::dynamic_pointer_cast<PortalObstacle>(m_Obstacles[0]);
-        auto portalB = std::dynamic_pointer_cast<PortalObstacle>(m_Obstacles[1]);
-        if (portalA && portalB) {
-            for (auto& fruit : m_Fruits) {
-                b2Vec2 pos = fruit->GetBody()->GetPosition();
-                float dx = (pos.x * PTM) - portalA->GetPos().x;
-                float dy = (pos.y * PTM) - portalA->GetPos().y;
-                float distance = std::sqrt(dx * dx + dy * dy);
-                if (distance < 40.0f) {
-                    fruit->GetBody()->SetTransform(b2Vec2(portalB->GetPos().x / PTM, (portalB->GetPos().y - 50.0f) / PTM), fruit->GetBody()->GetAngle());
+    if (m_CurrentLevelType == LevelType::PORTAL) {
+        // 動態收集所有傳送門障礙物，並成對 (i -> i+1) 進行傳送判定
+        std::vector<std::shared_ptr<PortalObstacle>> portals;
+        for (auto& obs : m_Obstacles) {
+            auto p = std::dynamic_pointer_cast<PortalObstacle>(obs);
+            if (p) portals.push_back(p);
+        }
+        for (size_t i = 0; i + 1 < portals.size(); i += 2) {
+            auto portalSrc = portals[i];
+            auto portalDst = portals[i + 1];
+            if (portalSrc && portalDst) {
+                for (auto& fruit : m_Fruits) {
+                    b2Vec2 pos = fruit->GetBody()->GetPosition();
+                    float dx = (pos.x * PTM) - portalSrc->GetPos().x;
+                    float dy = (pos.y * PTM) - portalSrc->GetPos().y;
+                    float distance = std::sqrt(dx * dx + dy * dy);
+                    if (distance < 40.0f) {
+                        fruit->GetBody()->SetTransform(b2Vec2(portalDst->GetPos().x / PTM, (portalDst->GetPos().y - 50.0f) / PTM), fruit->GetBody()->GetAngle());
+                    }
                 }
             }
         }

@@ -23,7 +23,7 @@ public:
     void ForceGameOver(const std::vector<std::shared_ptr<Fruit>>& fruits, int currentScore);
 private:
     bool m_IsGameOver = false;
-    float m_DeathLineY = 240.0f; // 死亡線高度 (像素)
+    float m_DeathLineY = 235.0f; // 死亡線高度 (像素)
     int m_FramesAboveLine = 0;
     std::shared_ptr<Util::GameObject> m_GameOverText;
     std::shared_ptr<Util::GameObject> m_RestartText;

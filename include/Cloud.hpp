@@ -2,6 +2,7 @@
 #define CLOUD_HPP
 
 #include "Util/GameObject.hpp"
+#include "Util/Image.hpp"
 #include "Fruit.hpp"
 #include <memory>
 
@@ -20,12 +21,24 @@ public:
     // 取得要生成水果的 X 座標
     float GetDropX() const;
 private:
-    std::shared_ptr<Util::GameObject> m_CloudImg;
+    std::shared_ptr<Util::GameObject> m_NpcBoard;
+    std::shared_ptr<Util::GameObject> m_NpcFace; // ✨ Mouth (嘴巴)
+    std::shared_ptr<Util::GameObject> m_NpcBlush; // ✨ Blush (腮紅)
+    std::shared_ptr<Util::GameObject> m_NpcEyes;
+    std::shared_ptr<Util::Image> m_EyeOpenImage;
+    std::shared_ptr<Util::Image> m_EyeClosedImage;
+
+    float m_BlinkTimer = 0.0f;
+    float m_BlinkDurationTimer = 0.0f;
+    bool m_IsBlinking = false;
+
+    float GetRandomBlinkInterval();
+
     std::shared_ptr<Util::GameObject> m_AimLine;
     std::shared_ptr<Util::GameObject> m_CurrentFruitUI;
     float m_MoveSpeed = 7.0f;
-    float m_LeftLimit = -175.0f;
-    float m_RightLimit = 245.0f;
+    float m_LeftLimit = -140.0f; // ✨ 調整為 -140.0f，配合對稱留空邊界 (-140 - 55 = -195)
+    float m_RightLimit = 255.0f; // ✨ 調整為 255.0f，配合對稱留空邊界 (255 - 55 = 200)
 
     bool m_IsDropping = false;
 
