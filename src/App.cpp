@@ -45,8 +45,10 @@ void App::Update() {
 
             if (m_LevelSelectMenu->IsLevelSelected()) {
                 LevelType chosenLevel = m_LevelSelectMenu->GetSelectedLevel();
-                m_Gameplay = std::make_shared<Gameplay>(chosenLevel);
-                // ⚠️ 注意：我們在這裡「不」摧毀選單！留著它當轉場的底圖！
+                int chosenSubLevel = m_LevelSelectMenu->GetSelectedSubLevel(); // ✨ 抓取 1~5 的資訊
+                // 把模式和小關卡一起傳給 Gameplay
+                m_Gameplay = std::make_shared<Gameplay>(chosenLevel, chosenSubLevel);
+                // (註：選單依然保留當作布幕底圖，不需要 nullptr)
             }
             else if (m_LevelSelectMenu->WantsToReturn()) {
                 m_StartMenu = std::make_shared<StartMenu>();

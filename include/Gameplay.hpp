@@ -22,7 +22,7 @@ class ContactListener;
 
 class Gameplay {
 public:
-    Gameplay(LevelType level);
+    Gameplay(LevelType level, int subLevel);
     ~Gameplay();
     void Update();
     void RegisterMerge(Fruit* a, Fruit* b);
@@ -30,6 +30,8 @@ public:
     bool IsCurtainClosed() const { return m_OpeningAnimation && m_OpeningAnimation->IsCurtainClosed(); }
 
 private:
+    int m_CurrentSubLevel = 1;
+
     LevelType m_CurrentLevelType;
     std::unique_ptr<CheatManager> m_CheatManager;
     std::unique_ptr<UIManager> m_UIManager;
@@ -63,6 +65,11 @@ private:
 
     // 開場動畫
     std::unique_ptr<OpeningAnimation> m_OpeningAnimation;
+
+    bool m_FirstWatermelonMerged = false; // 紀錄這場遊戲是否已經合出過西瓜
+    bool m_IsWinMenuOpen = false;         // 紀錄過關介面是否正開啟
+    std::shared_ptr<Util::GameObject> m_WinUIBackground; // 過關背景 (選配，可用半透明黑底)
+    std::shared_ptr<Util::GameObject> m_WinUIText;       // 過關提示文字
 
 };
 

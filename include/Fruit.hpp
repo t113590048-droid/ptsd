@@ -5,6 +5,7 @@
 #include <box2d/box2d.h>
 #include <memory>
 #include <string>
+#include "LevelType.hpp"
 
 // === 定義水果的等級 ===
 enum class FruitLevel {
@@ -44,9 +45,7 @@ private:
 class FruitFactory {
 public:
     static std::shared_ptr<Fruit> CreateFruit(FruitLevel level, b2World* world, b2Vec2 position);
-
-    // 👇 新增這行：讓工廠來負責「骰」隨機水果
-    static FruitLevel GetRandomFruit();
+    static FruitLevel GetRandomFruit(LevelType levelType = LevelType::NORMAL, int subLevel = 1);
 };
 
 #endif // FRUIT_HPP

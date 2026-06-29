@@ -79,9 +79,19 @@ std::shared_ptr<Fruit> FruitFactory::CreateFruit(FruitLevel level, b2World* worl
 // ==========================================
 // 隨機抽取要掉落的水果 (限定前 5 級)
 // ==========================================
-FruitLevel FruitFactory::GetRandomFruit() {
-    // 產生 0 ~ 4 的隨機數 (Cherry ~ Orange)
-    int randomVal = std::rand() % 5;
-    //int randomVal = 10;
-    return static_cast<FruitLevel>(randomVal);
+FruitLevel FruitFactory::GetRandomFruit(LevelType levelType, int subLevel) {
+    // ✨ 如果不是普通模式，直接執行原版邏輯 (返回所有水果)
+    if (levelType != LevelType::NORMAL) {
+        return static_cast<FruitLevel>(std::rand() % 5); // 回傳 0~4 級
+    }
+
+    // 以下是普通模式的難度邏輯
+    std::vector<FruitLevel> pool;
+    if (subLevel == 2) pool = {FruitLevel::Cherry, FruitLevel::Strawberry, FruitLevel::Grape, FruitLevel::tangerine};
+    else if (subLevel == 3) pool = {FruitLevel::Cherry, FruitLevel::Grape, FruitLevel::Orange};
+    else if (subLevel == 4) pool = {FruitLevel::Cherry, FruitLevel::Strawberry};
+    else if (subLevel == 5) pool = {FruitLevel::Cherry};
+    else pool = {FruitLevel::Cherry, FruitLevel::Strawberry, FruitLevel::Grape, FruitLevel::tangerine, FruitLevel::Orange};
+
+    return pool[std::rand() % pool.size()];
 }

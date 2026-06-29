@@ -7,13 +7,18 @@
 #include <ctime>
 #include <algorithm>
 #include "Util/Logger.hpp"
+#include "Util/Text.hpp"
+#include "Util/Color.hpp"
 
 const float PTM = 30.0f;
 
-Gameplay::Gameplay(LevelType level) : m_CurrentLevelType(level) {
+// ✅ 順序對調過，且加入了 subLevel 參數的傳遞
+Gameplay::Gameplay(LevelType level, int subLevel) : m_CurrentSubLevel(subLevel), m_CurrentLevelType(level) {
     std::srand(static_cast<unsigned>(std::time(nullptr)));
-    m_CurrentFruitLevel = FruitFactory::GetRandomFruit();
-    m_NextFruitLevel = FruitFactory::GetRandomFruit();
+
+    // ✨✨✨ 關鍵修改 1 & 2：告訴工廠現在是第幾小關，決定開局的兩顆水果
+    m_CurrentFruitLevel = FruitFactory::GetRandomFruit(m_CurrentLevelType, m_CurrentSubLevel);
+    m_NextFruitLevel = FruitFactory::GetRandomFruit(m_CurrentLevelType, m_CurrentSubLevel);
 
     m_DropSound = std::make_shared<Util::SFX>("Resources/material/music/drop.wav");
     m_MergeSound = std::make_shared<Util::SFX>("Resources/material/music/remove.wav");
@@ -54,8 +59,36 @@ Gameplay::Gameplay(LevelType level) : m_CurrentLevelType(level) {
     m_RightWallBody->CreateFixture(&rightWallBox, 0.0f);
 
     if (level == LevelType::STATIC_PEGS) {
-        m_Obstacles.push_back(std::make_shared<StaticObstacle>(m_World.get(), b2Vec2(-100.0f / PTM, 0.0f / PTM), "Resources/material/peg.png", 16.0f / PTM, 0.12f));
-        m_Obstacles.push_back(std::make_shared<StaticObstacle>(m_World.get(), b2Vec2(100.0f / PTM, 50.0f / PTM), "Resources/material/peg.png", 16.0f / PTM, 0.12f));
+        // ✨ 根據 subLevel 決定釘子擺放
+        switch (m_CurrentSubLevel) {
+            case 1: // 2-1：一根在正中央
+                m_Obstacles.push_back(std::make_shared<StaticObstacle>(m_World.get(), b2Vec2(0.0f / PTM, 0.0f / PTM), "Resources/material/peg.png", 16.0f / PTM, 0.12f));
+                break;
+
+            case 2: // 2-2：兩根上下，中間留空間給西瓜 (假設西瓜直徑約 100)
+                m_Obstacles.push_back(std::make_shared<StaticObstacle>(m_World.get(), b2Vec2(0.0f / PTM, 120.0f / PTM), "Resources/material/peg.png", 16.0f / PTM, 0.12f));
+                m_Obstacles.push_back(std::make_shared<StaticObstacle>(m_World.get(), b2Vec2(0.0f / PTM, -120.0f / PTM), "Resources/material/peg.png", 16.0f / PTM, 0.12f));
+                break;
+
+            case 3: // 2-3：兩根橫放劃分三等份 (釘子左右各一)
+                m_Obstacles.push_back(std::make_shared<StaticObstacle>(m_World.get(), b2Vec2(-100.0f / PTM, 0.0f / PTM), "Resources/material/peg.png", 16.0f / PTM, 0.12f));
+                m_Obstacles.push_back(std::make_shared<StaticObstacle>(m_World.get(), b2Vec2(100.0f / PTM, 0.0f / PTM), "Resources/material/peg.png", 16.0f / PTM, 0.12f));
+                break;
+
+            case 4: // 2-4：最上面三根擋住入口 (假設 Y=200 是接近上方)
+                m_Obstacles.push_back(std::make_shared<StaticObstacle>(m_World.get(), b2Vec2(-120.0f / PTM, 200.0f / PTM), "Resources/material/peg.png", 16.0f / PTM, 0.12f));
+                m_Obstacles.push_back(std::make_shared<StaticObstacle>(m_World.get(), b2Vec2(0.0f / PTM, 200.0f / PTM), "Resources/material/peg.png", 16.0f / PTM, 0.12f));
+                m_Obstacles.push_back(std::make_shared<StaticObstacle>(m_World.get(), b2Vec2(120.0f / PTM, 200.0f / PTM), "Resources/material/peg.png", 16.0f / PTM, 0.12f));
+                break;
+
+            case 5: // 2-5：五根均勻在底下
+                m_Obstacles.push_back(std::make_shared<StaticObstacle>(m_World.get(), b2Vec2(-120.0f / PTM, -140.0f / PTM), "Resources/material/peg.png", 16.0f / PTM, 0.12f));
+                m_Obstacles.push_back(std::make_shared<StaticObstacle>(m_World.get(), b2Vec2(120.0f / PTM, -140.0f / PTM), "Resources/material/peg.png", 16.0f / PTM, 0.12f));
+                m_Obstacles.push_back(std::make_shared<StaticObstacle>(m_World.get(), b2Vec2(0.0f / PTM, -20.0f / PTM), "Resources/material/peg.png", 16.0f / PTM, 0.12f));
+                m_Obstacles.push_back(std::make_shared<StaticObstacle>(m_World.get(), b2Vec2(-120.0f / PTM, 100.0f / PTM), "Resources/material/peg.png", 16.0f / PTM, 0.12f));
+                m_Obstacles.push_back(std::make_shared<StaticObstacle>(m_World.get(), b2Vec2(120.0f / PTM, 100.0f / PTM), "Resources/material/peg.png", 16.0f / PTM, 0.12f));
+                break;
+        }
     }
     else if (level == LevelType::MOVING_PLATFORMS) {
         m_Obstacles.push_back(std::make_shared<MovingObstacle>(
@@ -72,6 +105,20 @@ Gameplay::Gameplay(LevelType level) : m_CurrentLevelType(level) {
 
     // ✨✨✨ 初始化開場動畫 (布幕邏輯現在全都在這裡面了)
     m_OpeningAnimation = std::make_unique<OpeningAnimation>();
+
+    // ✨✨✨ 初始化過關介面 UI
+    m_FirstWatermelonMerged = false;
+    m_IsWinMenuOpen = false;
+
+    // 建立過關文字提示 (使用你現有的字體路徑)
+    m_WinUIText = std::make_shared<Util::GameObject>();
+    m_WinUIText->SetDrawable(std::make_shared<Util::Text>(
+        "Resources/material/font/FOT-OEDKTRSTD-E.otf", 45,
+        "Success!\n\n[ SPACE ] continue  /  [ R ] finish",
+        Util::Color(255, 215, 0, 255) // 金黃色字體
+    ));
+    m_WinUIText->SetZIndex(100); // 確保圖層在最前面，不會被水果遮住
+    m_WinUIText->m_Transform.translation = {0.0f, 0.0f}; // 居中顯示
 }
 
 Gameplay::~Gameplay() = default;
@@ -119,6 +166,10 @@ void Gameplay::HandleMerges() {
 
             if (nextLevel <= FruitLevel::Watermelon) {
                 m_Fruits.push_back(FruitFactory::CreateFruit(nextLevel, m_World.get(), spawnPos));
+                if (nextLevel == FruitLevel::Watermelon && !m_FirstWatermelonMerged) {
+                    m_FirstWatermelonMerged = true; // 標記已經合過了，下次再合出來就不會再跳視窗
+                    m_IsWinMenuOpen = true;         // 打開過關介面
+                }
             }
         }
     }
@@ -204,6 +255,31 @@ void Gameplay::Update() {
     }
 
     // ==========================================
+    // ✨✨✨ 全新新增：大西瓜過關介面攔截器
+    // ==========================================
+    if (m_IsWinMenuOpen) {
+        // 1. 雖然遊戲暫停，但背景的 UI、雲朵和水果還是要持續畫出來
+        m_UIManager->Draw();
+        m_CloudManager->Draw();
+        for (auto& obs : m_Obstacles) obs->Draw();
+        for (auto& fruit : m_Fruits) fruit->Draw();
+
+        // 2. 畫出過關提示文字
+        if (m_WinUIText) m_WinUIText->Draw();
+
+        // 3. 偵測玩家輸入
+        if (Util::Input::IsKeyUp(Util::Keycode::SPACE)) {
+            m_IsWinMenuOpen = false; // 關閉介面，繼續遊玩！
+        }
+        if (Util::Input::IsKeyUp(Util::Keycode::R)) {
+            m_WantsToReturnMenu = true; // 觸發返回主頁，App.cpp 會自動幫你換回 StartMenu
+            m_IsWinMenuOpen = false;
+        }
+
+        return; // 👈 關鍵！攔截底下的物理運算與水果丟下邏輯，讓遊戲世界完全靜止
+    }
+
+    // ==========================================
     // 正常物理與遊戲邏輯
     // ==========================================
     m_World->Step(1.0f / 60.0f, 8, 3);
@@ -233,8 +309,11 @@ void Gameplay::Update() {
         if (m_DropSound) m_DropSound->Play();
         b2Vec2 spawnPos(m_CloudManager->GetDropX(), 280.0f);
         m_Fruits.push_back(FruitFactory::CreateFruit(m_CurrentFruitLevel, m_World.get(), spawnPos));
+
         m_CurrentFruitLevel = m_NextFruitLevel;
-        m_NextFruitLevel = FruitFactory::GetRandomFruit();
+        // ✨✨✨ 關鍵修改 3：丟出水果後，告訴工廠根據第幾小關來產生下一顆
+        m_NextFruitLevel = FruitFactory::GetRandomFruit(m_CurrentLevelType, m_CurrentSubLevel);
+
         m_UIManager->UpdateNextFruit(m_NextFruitLevel);
         m_CloudManager->SetCurrentFruit(m_CurrentFruitLevel);
     }
